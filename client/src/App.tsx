@@ -5,21 +5,30 @@ import "./App.css";
 // import Form from "./pages/Form";
 
 function App() {
-  const [backendData, setBackendData] = useState([{}]);
+  // const [backendData, setBackendData] = useState([{}]);
+  interface BackendDataItem {
+    id: string;
+    title: string;
+  }
+  const [backendData, setBackendData] = useState<BackendDataItem[]>();
+
   useEffect(() => {
     fetch("/api")
       .then((response) => response.json())
       .then((data) => setBackendData(data));
   }, []);
+  console.log(backendData);
 
-  console.log(backendData.map((data) => data.id));
   return (
     <>
-      {typeof backendData === "undefiend" ? (
+      {backendData === undefined ? (
         <p>Loading...</p>
       ) : (
-        backendData.map((post) => <p key={post.id}>{post.title}</p>)
+        backendData?.map((post: BackendDataItem) => (
+          <p key={post.id}>{post.title}</p>
+        ))
       )}
+
       {/* <Router>
         <Routes>
           <Route path="/" element={<Home backendData={backendData} />} />
