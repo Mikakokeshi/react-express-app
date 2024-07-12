@@ -46,7 +46,6 @@ app.put("/api:id", async (req, res) => {
       title: title,
       body: body,
       created_at: created_at,
-
       updated_at: updated_at,
     },
   });
