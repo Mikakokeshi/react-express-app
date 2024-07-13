@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "db:seed": "prisma migrate dev && npx prisma db seed",
+    "db:migrate": "npx prisma migrate dev"
   },
   "dependencies": {
     "@prisma/client": "^5.16.1",
