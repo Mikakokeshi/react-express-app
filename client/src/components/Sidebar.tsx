@@ -38,7 +38,7 @@ function Sidebar({
     }
   };
 
-  const onAddId = () => {
+  const onAddId = async () => {
     console.log("add note");
     const newNote: BackendDataItem = {
       id: Date.now().toString(),
@@ -48,7 +48,28 @@ function Sidebar({
       updated_at: new Date(),
     };
     setBackendData([...backendData, newNote]);
+    setSelectedId(newNote?.id);
+    const note: BackendDataItem | undefined = backendData.find(
+      (data) => data.id === newNote?.id
+    );
+    setSelectedNote(note ? [note] : undefined);
     console.log(backendData);
+
+    try {
+      const title = newNote.title;
+      const body = newNote.body;
+      const response = await fetch("/api", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, body }),
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const onSelected = (id: string) => {
@@ -56,22 +77,21 @@ function Sidebar({
     const note: BackendDataItem | undefined = backendData.find(
       (data) => data.id === id
     );
-    console.log(id);
     setSelectedNote(note ? [note] : undefined);
   };
 
   return (
-    <div className="sidebar border mx-5">
-      <div className="sidebar_header flex border-b p-5 ">
+    <div className="sidebar border mr-5">
+      <div className="sidebar_header flex border-b p-4  ">
         <input
           type="search"
           id="default-search"
-          className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="block w-full pl-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           placeholder="Search"
           required
         />
         <span
-          className="ml-4 border p-4 flex items-center justify-center"
+          className="ml-3 border px-2 py-1 flex items-center justify-center"
           onClick={onAddId}>
           ＋
         </span>
