@@ -22,6 +22,7 @@ const Main = ({
 }: SidebarProps) => {
   const [handleTitle, setHandleTitle] = useState("");
   const [handleDescription, setHandleDescription] = useState("");
+
   useEffect(() => {
     fetch("/api")
       .then((response) => {
@@ -36,8 +37,7 @@ const Main = ({
       });
   }, []);
 
-  const onSubmitForm = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onChangeNote = async () => {
     try {
       const title = handleTitle;
       const body = handleDescription;
@@ -55,10 +55,20 @@ const Main = ({
     }
   };
 
-  const onDeleteNote = (id: string | undefined) => {
+  const onDeleteNote = async (id: string | undefined) => {
     const filterNotes = backendData.filter((data) => data.id !== id);
     setBackendData(filterNotes);
     setSelectedNote([]);
+    try {
+      const response = await fetch(`/api/${selectedId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   console.log(selectedId);
@@ -72,23 +82,27 @@ const Main = ({
           ×
         </span>
       </div>
-      <form onSubmit={onSubmitForm} className="main_content p-5">
-        <input
-          type="text"
-          onChange={(e) => setHandleTitle(e.target.value)}
-          value={selectedNote?.map((note) => note.title)}
-        />
-        <textarea
-          onChange={(e) => setHandleDescription(e.target.value)}
-          value={selectedNote?.map((note) => note.body)}
-        />
 
-        <button type="submit">追加</button>
-      </form>
-      {selectedId === undefined ? (
-        <p>Loading...</p>
+      {selectedId === "" || undefined ? (
+        <p className="p-4 ">メモが選択されていません</p>
       ) : (
-        <p>{selectedNote?.map((note) => note.id)}</p>
+        <form
+          onChange={onChangeNote}
+          className="main_content flex flex-col p-5">
+          <input
+            placeholder="無題のノート"
+            className="border p-4 mb-5"
+            type="text"
+            onChange={(e) => setHandleTitle(e.target.value)}
+            value={selectedNote?.map((note) => note.title)}
+          />
+          <textarea
+            placeholder="description"
+            className="border p-4 h-full"
+            onChange={(e) => setHandleDescription(e.target.value)}
+            value={selectedNote?.map((note) => note.body)}
+          />
+        </form>
       )}
     </div>
   );
