@@ -25,7 +25,7 @@ app.get("/api", async (req, res) => {
   return res.json(posts);
 });
 
-app.get("/api:id", async (req, res) => {
+app.get("/api/:id", async (req, res) => {
   const id = req.params.id;
   const post = await prisma.post.findUnique({
     where: {
@@ -35,7 +35,7 @@ app.get("/api:id", async (req, res) => {
   return res.json(post);
 });
 
-app.put("/api:id", async (req, res) => {
+app.put("/api/:id", async (req, res) => {
   const id = req.params.id;
   const { title, body, created_at, updated_at } = req.body;
   const updatedPost = await prisma.post.update({
@@ -52,7 +52,7 @@ app.put("/api:id", async (req, res) => {
   return res.json(updatedPost);
 });
 
-app.delete("/api:id", async (req, res) => {
+app.delete("/api/:id", async (req, res) => {
   const id = req.params.id;
   const deletedPost = await prisma.post.delete({
     where: {
