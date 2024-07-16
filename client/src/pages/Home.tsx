@@ -13,9 +13,12 @@ export interface BackendDataItem {
 const Home = () => {
   const [backendData, setBackendData] = useState<BackendDataItem[]>([]);
   const [selectedId, setSelectedId] = useState("");
-  const [selectedNote, setSelectedNote] = useState<
-    BackendDataItem[] | undefined
-  >([]);
+  const [selectedNote, setSelectedNote] = useState<BackendDataItem | undefined>(
+    undefined
+  );
+  const [updatedNote, setUpdatedNote] = useState<BackendDataItem | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     fetch("/api")
@@ -31,11 +34,22 @@ const Home = () => {
       });
   }, []);
 
+  const onUpdateNote: React.FC<BackendDataItem | undefined> = (updatedNote) => {
+    const updatedNptesArray = backendData.map((data) => {
+      if (data.id === updatedNote?.id) {
+        return updatedNote;
+      } else {
+        return data;
+      }
+    });
+    setBackendData(updatedNptesArray);
+  };
+
   return (
     <>
       <h1 className="text-center text-4xl my-5 ">Notes</h1>
 
-      <div className="flex w-full h-full max-w-full">
+      <div className="flex w-full h-full max-w-full p-4">
         <Sidebar
           backendData={backendData}
           setBackendData={setBackendData}
@@ -50,6 +64,8 @@ const Home = () => {
           selectedId={selectedId}
           selectedNote={selectedNote}
           setSelectedNote={setSelectedNote}
+          onUpdateNote={onUpdateNote}
+          updatedNote={updatedNote}
         />
       </div>
     </>

@@ -7,10 +7,12 @@ interface SidebarProps {
   backendData: BackendDataItem[];
   setBackendData: React.Dispatch<React.SetStateAction<BackendDataItem[]>>;
   setSelectedNote: React.Dispatch<
-    React.SetStateAction<BackendDataItem[] | undefined>
+    React.SetStateAction<BackendDataItem | undefined>
   >;
-  selectedId: string | undefined;
-  selectedNote: BackendDataItem[] | undefined;
+  selectedId: string;
+  selectedNote: BackendDataItem | undefined;
+  onUpdateNote: React.FC<BackendDataItem>;
+  updatedNote: BackendDataItem | undefined;
 }
 
 const Main = ({
@@ -19,46 +21,75 @@ const Main = ({
   setSelectedNote,
   selectedId,
   selectedNote,
+  onUpdateNote,
+  updatedNote,
 }: SidebarProps) => {
   const [handleTitle, setHandleTitle] = useState("");
   const [handleDescription, setHandleDescription] = useState("");
 
   useEffect(() => {
-    fetch("/api")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => setBackendData(data))
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+    const fetchData: () => Promise<void> = async () => {
+      await fetch("/api")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((data) => setBackendData(data))
+        .catch((error) => {
+          console.error("Error fetching data:", error);
+        });
+    };
+    fetchData();
   }, []);
 
-  const onChangeNote = async () => {
+  const onChangeNote = async (key: string, value: string) => {
     try {
-      const title = handleTitle;
-      const body = handleDescription;
-      const response = await fetch("/api", {
+      if (key === "title") {
+        setHandleTitle(value);
+      } else if (key === "body") {
+        setHandleDescription(value);
+      }
+
+      const response = await fetch(`/api`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, body }),
+        body: JSON.stringify({
+          ...selectedNote,
+          id: selectedId,
+          [key]: value,
+        }),
       });
+
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
       const data = await response.json();
+      console.log(data);
+      // console.log(selectedId);
+      setSelectedNote(data);
+      console.log(data);
+      onUpdateNote({
+        ...selectedNote,
+        id: selectedId,
+        title: handleTitle,
+        body: handleDescription,
+        created_at: new Date(),
+        updated_at: new Date(),
+      });
     } catch (err) {
       console.log(err);
     }
   };
+  console.log(selectedNote);
+  // console.log({ ...backendData, selectedNote });
+  console.log(updatedNote);
 
   const onDeleteNote = async (id: string | undefined) => {
     const filterNotes = backendData.filter((data) => data.id !== id);
     setBackendData(filterNotes);
-    setSelectedNote([]);
+    setSelectedNote(undefined);
     try {
       const response = await fetch(`/api/${selectedId}`, {
         method: "DELETE",
@@ -71,8 +102,8 @@ const Main = ({
     }
   };
 
-  console.log(selectedId);
-  console.log(selectedNote?.map((note) => note.title));
+  // console.log(handleTitle);
+  // console.log(selectedNote?.map((note) => note.title));
   return (
     <div className="main flex-1 border">
       <div className="main_head p-4 border-b">
@@ -86,21 +117,19 @@ const Main = ({
       {selectedId === "" || undefined ? (
         <p className="p-4 ">メモが選択されていません</p>
       ) : (
-        <form
-          onChange={onChangeNote}
-          className="main_content flex flex-col p-5">
+        <form className="main_content flex flex-col p-5">
           <input
             placeholder="無題のノート"
             className="border p-4 mb-5"
             type="text"
-            onChange={(e) => setHandleTitle(e.target.value)}
-            value={selectedNote?.map((note) => note.title)}
+            onChange={(e) => onChangeNote("title", e.target.value)}
+            value={selectedNote?.title}
           />
           <textarea
             placeholder="description"
             className="border p-4 h-full"
-            onChange={(e) => setHandleDescription(e.target.value)}
-            value={selectedNote?.map((note) => note.body)}
+            onChange={(e) => onChangeNote("body", e.target.value)}
+            value={selectedNote?.body}
           />
         </form>
       )}
