@@ -7,9 +7,9 @@ interface SidebarProps {
   selectedId: string;
   setSelectedId: React.Dispatch<React.SetStateAction<string>>;
   setSelectedNote: React.Dispatch<
-    React.SetStateAction<BackendDataItem[] | undefined>
+    React.SetStateAction<BackendDataItem | undefined>
   >;
-  selectedNote: BackendDataItem[] | undefined;
+  selectedNote: BackendDataItem | undefined;
 }
 
 function Sidebar({
@@ -52,8 +52,9 @@ function Sidebar({
     const note: BackendDataItem | undefined = backendData.find(
       (data) => data.id === newNote?.id
     );
-    setSelectedNote(note ? [note] : undefined);
-    console.log(backendData);
+    setSelectedNote(note ? note : undefined);
+    // console.log(backendData);
+    console.log(backendData.find((data) => data.id === newNote?.id));
 
     try {
       const title = newNote.title;
@@ -77,16 +78,21 @@ function Sidebar({
     const note: BackendDataItem | undefined = backendData.find(
       (data) => data.id === id
     );
-    setSelectedNote(note ? [note] : undefined);
+    setSelectedNote(note ? note : undefined);
   };
-
+  const sortedNotes = [...backendData].sort(
+    (a: BackendDataItem, b: BackendDataItem) =>
+      // new Date() を使用して updated_at の値を明示的に Date オブジェクトに変換
+      new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+  );
+  console.log(sortedNotes);
   return (
     <div className="sidebar border mr-5">
       <div className="sidebar_header flex border-b p-4  ">
         <input
           type="search"
           id="default-search"
-          className="block w-full pl-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="block w-full pl-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 "
           placeholder="Search"
           required
         />
@@ -97,7 +103,7 @@ function Sidebar({
         </span>
       </div>
       <div className="sidebar_notes">
-        {backendData.map((data: BackendDataItem) => (
+        {sortedNotes.map((data: BackendDataItem) => (
           <div
             key={data.id}
             className={`note border m-5 p-4 ${
