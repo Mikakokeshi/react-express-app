@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BackendDataItem } from "../pages/Home";
 
 interface SidebarProps {
@@ -20,8 +20,11 @@ function Sidebar({
   setSelectedNote,
   selectedNote,
 }: SidebarProps) {
+  const [searchQuery, setSearchQuery] = useState<BackendDataItem[]>([]);
+
+  const ref = useRef<HTMLInputElement>(null);
+
   const timeDiff = (time: Date) => {
-    //   return new Date().getTime() - time;
     const updatedTime = new Date(time);
     const diffMs = new Date().getTime() - updatedTime.getTime();
     const diffMinutes = Math.floor(diffMs / (1000 * 60));
@@ -80,12 +83,24 @@ function Sidebar({
     );
     setSelectedNote(note ? note : undefined);
   };
+
   const sortedNotes = [...backendData].sort(
     (a: BackendDataItem, b: BackendDataItem) =>
       // new Date() を使用して updated_at の値を明示的に Date オブジェクトに変換
       new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
   );
-  console.log(sortedNotes);
+
+  const handleSearch = () => {
+    const query = ref.current?.value || "";
+    const filteredNotes = backendData.filter(
+      (data) =>
+        data.title.toLowerCase().includes(query.toLowerCase()) ||
+        data.body.toLowerCase().includes(query.toLowerCase())
+    );
+    setSearchQuery(filteredNotes);
+  };
+
+  console.log(searchQuery);
   return (
     <div className="sidebar border mr-5">
       <div className="sidebar_header flex border-b p-4  ">
@@ -94,6 +109,8 @@ function Sidebar({
           id="default-search"
           className="block w-full pl-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 "
           placeholder="Search"
+          ref={ref}
+          onChange={() => handleSearch()}
           required
         />
         <span
@@ -103,20 +120,22 @@ function Sidebar({
         </span>
       </div>
       <div className="sidebar_notes">
-        {sortedNotes.map((data: BackendDataItem) => (
-          <div
-            key={data.id}
-            className={`note border m-5 p-4 ${
-              selectedId === data.id ? "bg-gray-200" : ""
-            }`}
-            onClick={() => onSelected(data.id)}>
-            <p className="note_ttl">{data.title || "無題のノート"}</p>
-            <span className="update block text-right">
-              {timeDiff(data.updated_at)}
-            </span>
-            <p className="text-sm text-gray-500">ID: {data.id}</p>
-          </div>
-        ))}
+        {(searchQuery.length > 0 ? searchQuery : sortedNotes).map(
+          (data: BackendDataItem) => (
+            <div
+              key={data.id}
+              className={`note border m-5 p-4 ${
+                selectedId === data.id ? "bg-gray-200" : ""
+              }`}
+              onClick={() => onSelected(data.id)}>
+              <p className="note_ttl">{data.title || "無題のノート"}</p>
+              <span className="update block text-right">
+                {timeDiff(data.updated_at)}
+              </span>
+              <p className="text-sm text-gray-500">ID: {data.id}</p>
+            </div>
+          )
+        )}
       </div>
     </div>
   );
