@@ -34,7 +34,9 @@ const Home = () => {
       });
   }, []);
 
-  const onUpdateNote: React.FC<BackendDataItem | undefined> = (updatedNote) => {
+  const onUpdateNote: (updatedNote: BackendDataItem | undefined) => void = (
+    updatedNote
+  ) => {
     const updatedNptesArray = backendData.map((data) => {
       if (data.id === updatedNote?.id) {
         return updatedNote;
@@ -44,6 +46,7 @@ const Home = () => {
     });
     setBackendData(updatedNptesArray);
   };
+  console.log(backendData);
 
   return (
     <>

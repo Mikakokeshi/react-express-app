@@ -11,7 +11,7 @@ interface SidebarProps {
   >;
   selectedId: string;
   selectedNote: BackendDataItem | undefined;
-  onUpdateNote: React.FC<BackendDataItem>;
+  onUpdateNote: (updatedNote: BackendDataItem | undefined) => void;
   updatedNote: BackendDataItem | undefined;
 }
 
@@ -52,15 +52,15 @@ const Main = ({
         setHandleDescription(value);
       }
 
-      const response = await fetch(`/api`, {
-        method: "POST",
+      const response = await fetch(`/api/${selectedId}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...selectedNote,
-          id: selectedId,
           [key]: value,
+          updated_at: new Date(),
         }),
       });
+      console.log(key, value);
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
