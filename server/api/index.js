@@ -1,6 +1,6 @@
 const express = require("express");
 // const { listen } = require("./app");
-const { PrismaClient } = require("@prisma/client");
+const { PrismaClient } = require("../prisma/generated/client/index.js");
 const app = express();
 const PORT = 8000;
 
