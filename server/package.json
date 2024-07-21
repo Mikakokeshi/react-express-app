@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "build": "prisma generate",
     "start": "nodemon ./api/index.js",
     "postinstall": "prisma generate",
     "db:seed": "prisma migrate dev && npx prisma db seed",
