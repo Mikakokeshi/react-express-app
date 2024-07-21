@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./api/index.js",
+    "build": "npx prisma db push && npx prisma generate && next build",
     "db:seed": "prisma migrate dev && npx prisma db seed",
     "db:migrate": "npx prisma migrate dev"
   },
