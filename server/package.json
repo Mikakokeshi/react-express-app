@@ -3,14 +3,16 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "prisma generate",
-    "start": "nodemon ./api/index.js",
+    "start": "node ./api/index.js",
+    "dev": "nodemon ./api/index.js",
     "postinstall": "prisma generate",
+    "build": "prisma generate && npm run start",
     "db:seed": "prisma migrate dev && npx prisma db seed",
     "db:migrate": "npx prisma migrate dev"
   },
   "dependencies": {
     "@prisma/client": "^5.16.1",
+   "prisma": "^5.16.1",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "ejs": "~2.6.1",
