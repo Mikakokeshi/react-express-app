@@ -4,7 +4,16 @@ const { PrismaClient } = require("../prisma/generated/client/index.js");
 const app = express();
 const PORT = 8000;
 
-const prisma = new PrismaClient();
+let prisma;
+try {
+  prisma = new PrismaClient();
+} catch (error) {
+  console.error("Failed to initialize Prisma client:", error);
+  process.exit(1);
+} 
+
+
+
 app.use(express.json());
 
 app.post("/api", async (req, res) => {
